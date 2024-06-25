@@ -1,1 +1,1 @@
-# PROJEKT_POP_KM
+print 'Hello World'
