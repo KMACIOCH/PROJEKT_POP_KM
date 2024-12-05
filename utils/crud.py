@@ -1,189 +1,168 @@
-def read_user(users: list) -> None:
-    """
-    Displays information about the user's friends based on a list of dictionaries containing data about these friends.
+import folium
+import requests
+from bs4 import BeautifulSoup
+from model.data import users, publications, workers, customers
 
-    :param users: A list of dictionaries, where each dictionary represents a friend and contains the following keys:
-        - "name" (str): The friend's first name.
-        - "surname" (str): The friend's last name.
-        - "posts" (int): The number of posts published by the friend.
-    :return: None: This function does not return any value.
 
-    Functionality:
-    1. The function displays the header: "Information about your friends:".
-    2. It iterates over each dictionary in the `users` list.
-    3. For each friend, it displays their first name, last name, and the number of posts published in the formatted form:
-       "Your friend {name} {surname} has published {posts} posts."
+def show_library(users: list[dict[str, str]]) -> None:
+    for user in users[0:]:
+        print(f"Nazwa: {user['name']} , Lokalizacja: {user['location']}")
 
-    Example usage:
-    users_data = [
-        {"name": "John", "surname": "Doe", "posts": 5},
-        {"name": "Anna", "surname": "Smith", "posts": 12},
-        {"name": "Peter", "surname": "Brown", "posts": 7}
-    ]
 
-    read_user(users_data)
+def add_new_library(users: list[dict[str, str]]) -> None:
+    name = input("Nazwa księgarni: ")
+    location = input("Lokalizacja: ")
+    new_user = {"name": name, "location": location}
+    print(new_user)
+    users.append(new_user)
 
-    Output:
-    Information about your friends:
-        Your friend John Doe has published 5 posts.
-        Your friend Anna Smith has published 12 posts.
-        Your friend Peter Brown has published 7 posts.
 
-    Notes:
-    - The function assumes that each dictionary in the `users` list contains the keys "name", "surname", and "posts".
-    - There is no error handling for cases where a dictionary is missing the required keys or has incorrect data types.
-    """
-    print("About your friends: ")
+def delete_library(users: list[dict[str, str]]) -> None:
+    user_name = input("Jaką księgarnie usunąć?: ")
     for user in users:
-        print(f'\tYour friend {user["name"]} {user["surname"]} sends {user["posts"]} posts.')
-
-
-def add_user(lista: list) -> None:
-    """
-    Adds a new user to the provided list of users.
-
-    :param lista: A list of dictionaries, where each dictionary represents a user.
-    :return: None: This function does not return any value.
-
-    Functionality:
-    1. Prompts the user to input the name, surname, number of posts, and location of the new user.
-    2. Creates a new dictionary with these values.
-    3. Appends the new dictionary to the provided list.
-
-    Example usage:
-    users_list = []
-    add_user(users_list)
-
-    Expected input sequence:
-    Type new user name: John
-    Type new user surname: Doe
-    Type how many posts did new user publish: 5
-    Type new user location: New York
-
-    Result:
-    The users_list will contain one dictionary with the user's information.
-
-    Notes:
-    - The function assumes that the input values are correctly formatted.
-    - There is no error handling for invalid inputs.
-    """
-    new_user: dict = {
-        "name": input("Type  new user name: "),
-        "surname": input("Type new user surname: "),
-        "posts": int(input("Type how many post did new user published: ")),
-        'location': input("Type new user location: ")
-    }
-    lista.append(new_user)
-
-
-def search_user(users: list) -> dict:
-    """
-       Searches for a user by name in the provided list of users and returns the user's dictionary if found.
-
-       :param users: A list of dictionaries, where each dictionary represents a user.
-       :return: dict: The dictionary of the user found, or None if no user is found.
-
-       Functionality:
-       1. Prompts the user to input the name of the user they are searching for.
-       2. Iterates over the list of users to find a match by name.
-       3. Returns the dictionary of the first matching user found.
-
-       Example usage:
-       users_list = [
-           {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"},
-           {"name": "Anna", "surname": "Smith", "posts": 12, "location": "London"}
-       ]
-       result = search_user(users_list)
-
-       Expected input sequence:
-       Who do you look for (name): John
-
-       Result:
-       The function returns the dictionary: {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"}
-
-       Notes:
-       - The function assumes that names are unique within the list.
-       - There is no error handling for cases where no user is found.
-       """
-    name: str = input("Who do you look for (name): ")
-    for user in users:
-        if user["name"] == name:
-            print(user)
-            return user
-
-
-def remove_user(users: list) -> None:
-    """
-       Removes a user by name from the provided list of users.
-
-       :param users: A list of dictionaries, where each dictionary represents a user.
-       :return: None: This function does not return any value.
-
-       Functionality:
-       1. Prompts the user to input the name of the user to be removed.
-       2. Iterates over the list of users to find a match by name.
-       3. Removes the first matching user found from the list.
-
-       Example usage:
-       users_list = [
-           {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"},
-           {"name": "Anna", "surname": "Smith", "posts": 12, "location": "London"}
-       ]
-       remove_user(users_list)
-
-       Expected input sequence:
-       Type a name of user to be removed: John
-
-       Result:
-       The users_list will no longer contain the dictionary with {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"}.
-
-       Notes:
-       - The function assumes that names are unique within the list.
-       - There is no error handling for cases where no user is found.
-       """
-    name: str = input("Type a name of user to be removed: ")
-    for user in users:
-        if user["name"] == name:
+        if f"{user['name']}" == user_name:
             users.remove(user)
 
 
-def update_user(users: list) -> None:
-    """
-        Updates the information of an existing user in the provided list of users.
-
-        :param users: A list of dictionaries, where each dictionary represents a user.
-        :return: None: This function does not return any value.
-
-        Functionality:
-        1. Prompts the user to input the name of the user to be updated.
-        2. Iterates over the list of users to find a match by name.
-        3. Prompts the user to input new values for the user's name, surname, and number of posts.
-        4. Updates the user's dictionary with the new values.
-
-        Example usage:
-        users_list = [
-            {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"},
-            {"name": "Anna", "surname": "Smith", "posts": 12, "location": "London"}
-        ]
-        update_user(users_list)
-
-        Expected input sequence:
-        Type a name of user you like to update: John
-        Type new name: Jonathan
-        Type new surname: Doe-Smith
-        Type new number of posts: 10
-
-        Result:
-        The dictionary with {"name": "John", "surname": "Doe", "posts": 5, "location": "New York"} will be updated to
-        {"name": "Jonathan", "surname": "Doe-Smith", "posts": 10, "location": "New York"}.
-
-        Notes:
-        - The function assumes that names are unique within the list.
-        - There is no error handling for cases where no user is found or for invalid inputs.
-        """
-    name: str = input("Type a name of user you like to update: ")
+def edit_library(users: list[dict[str, str]]) -> None:
+    user_name = input("Jaką księgarnie uaktualnić?: ")
     for user in users:
-        if user["name"] == name:
-            user["name"] = input("Type new name: ")
-            user["surname"] = input("Type new surname: ")
-            user["posts"] = int(input("Type new number of posts: "))
+        if f"{user['name']}" == user_name:
+            user["name"] = input("Nazwa księgarni: ")
+            user["location"] = input("Lokalizacja: ")
+            print(user)
+            users.append(user)
+
+
+def show_publicator(publications: list[dict]) -> None:
+    for publicator in publications:
+        print(f" Imię: {publicator['name']} Nazwisko: {publicator['surname']}, nazwa książki: {publicator['bookname']}, lokalizacja: {publicator['location']}")
+
+def add_publicator(publications: list[dict]) -> None:
+    publicator_name = input("Imie publikatora: ")
+    publicator_surname = input("Nazwisko publikatora: ")
+    publicator_bookname = input("Nazwa książki ")
+    publicator_location = input("Lokalizacja: ")
+    new_publicator = {"name": publicator_name, "surname": publicator_surname, "bookname": publicator_bookname, "location": publicator_location}
+    print(new_publicator)
+    publications.append(new_publicator)
+
+
+def delete_publicator(publications: list[dict]) -> None:
+    publicator_name = input("Którego wydawce usunąć?: ")
+    for publicator in publications:
+        if publicator['name'] == publicator_name:
+            publications.remove(publicator)
+
+
+def update_publicator(publications: list[dict])-> None:
+    publicator_name = input("Który wydawce edytować: ")
+    for publicator in publications:
+        if publicator['name'] == publicator_name:
+            publicator['name'] = input("Imię: ")
+            publicator['surname'] = input("Nazwisko: ")
+            publicator['bookname'] = input("Nazwa książki: ")
+            publications.append(publicator)
+
+
+def show_workers(workers_list: list[dict]) -> None:
+    for worker in workers_list:
+        print(f"{worker['name']} {worker['surname']}, księgarnia: {worker['library']}, mieszka w: {worker['location']}")
+
+
+def add_workers(workers: list) -> None:
+    worker_name = input("Imie: ")
+    worker_surname = input("Nazwisko: ")
+    worker_library = input("Księgarnia: ")
+    worker_location = input("Mieszka w: ")
+    new_workers = {'name': worker_name, 'surname': worker_surname, 'library': worker_library, 'location': worker_location}
+    workers.append(new_workers)
+
+
+def delete_workers(workers: list) -> None:
+    worker_name = input("Kogo usunąć?: ")
+    for worker in workers:
+        if f"{worker['name']}" == worker_name:
+            workers.remove(worker)
+
+
+def update_worker(workers: list) -> None:
+    worker_name = input("Kogo edytować?: ")
+    for worker in workers:
+        if f"{worker['name']}" == worker_name:
+            worker['name'] = input("Imie: ")
+            worker['surname'] = input("Nazwisko: ")
+            worker['library'] = input("Księgarnia: ")
+            worker['location'] = input("Mieszka w: ")
+            workers.append(worker)
+
+
+def show_customers(customers_list: list[dict]) -> None:
+    for customers in customers_list:
+        print(
+            f"{customers['name']} {customers['surname']}, księgarnia: {customers['library']}")
+
+def library_workers(users: list[dict[str, str]], workers: list[dict]) -> None:
+    user_name = input("Podaj nazwę księgarni: ")
+    for user in users:
+        if user_name == user['name']:
+            for worker in workers:
+                if worker['library'] == user_name:
+                    print(f" Pracownik: {worker['name']} {worker['surname']}")
+
+
+def library_customers(users: list[dict[str, str]], customers: list[dict]) -> None:
+    user_name = input("Podaj nazwę księgarni: ")
+    for user in users:
+        if user_name == user['name']:
+            for customer in customers:
+                if customer['library'] == user_name:
+                    print(f" Klient: {customer['name']} {customer['surname']}")
+
+
+def map_users(users):
+    map = folium.Map(location=[52, 20], zoom_start=6)
+    for user in users:
+        url = (f"https://pl.wikipedia.org/wiki/{user['location']}")
+        response = requests.get(url)
+        response_html = BeautifulSoup(response.text, 'html.parser')
+        longitude = float(response_html.select('.longitude')[1].text.replace(',', '.'))
+        latitude = float(response_html.select('.latitude')[1].text.replace(',', '.'))
+        print(longitude, latitude)
+        folium.Marker(location=[latitude, longitude],
+                      popup=f"{user['name']},\n{user['location']}",
+                      icon=folium.Icon(color='green')).add_to(map)
+
+    map.save('utils/map_libraries.html')
+
+
+def map_workers(workers):
+    map = folium.Map(location=[52, 20], zoom_start=6)
+    for worker in workers:
+        url = (f"https://pl.wikipedia.org/wiki/{worker['location']}")
+        response = requests.get(url)
+        response_html = BeautifulSoup(response.text, 'html.parser')
+        longitude = float(response_html.select('.longitude')[1].text.replace(',', '.'))
+        latitude = float(response_html.select('.latitude')[1].text.replace(',', '.'))
+        print(longitude, latitude)
+        folium.Marker(location=[latitude, longitude],
+                      popup=f"{worker['name']},\n{worker['location']}",
+                      icon=folium.Icon(color='black')).add_to(map)
+
+    map.save('utils/map_workers.html')
+
+
+def map_publications(publications):
+    map = folium.Map(location=[52, 20], zoom_start=6)
+    for publicator in publications:
+        url = (f"https://pl.wikipedia.org/wiki/{publicator['location']}")
+        response = requests.get(url)
+        response_html = BeautifulSoup(response.text, 'html.parser')
+        longitude = float(response_html.select('.longitude')[1].text.replace(',', '.'))
+        latitude = float(response_html.select('.latitude')[1].text.replace(',', '.'))
+        print(longitude, latitude)
+        folium.Marker(location=[latitude, longitude],
+                      popup=f"{publicator['name']},\n{publicator['location']}",
+                      icon=folium.Icon(color='blue')).add_to(map)
+
+    map.save('utils/map_publications.html')
